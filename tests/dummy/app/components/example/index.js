@@ -13,6 +13,10 @@ export default class Example extends Component {
       return args.name || 'unknown person';
     });
 
+    const page = reactive({
+      wordCount: computed(() => name.value.length)
+    });
+
     const button = nodeRef('button');
 
     const timer = setInterval(()=>{
@@ -37,6 +41,7 @@ export default class Example extends Component {
     return {
       scope,
       name,
+      page,
       timestamp,
       onButtonClick: () => {
         button.value.textContent = 'Clicked!';

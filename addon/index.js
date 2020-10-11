@@ -67,6 +67,9 @@ class TrackedRef {
     this.value = initialValue;
   }
   @tracked value;
+  toString() {
+    return this.value;
+  }
 }
 
 const PROXY_LIST = new WeakSet();
@@ -93,6 +96,12 @@ export function toRaw(obj) {
 
 export function reactive(obj) {
   if (obj === null) {
+    return obj;
+  }
+  if (isReactive(obj)) {
+    return obj;
+  }
+  if (isRef(obj)) {
     return obj;
   }
   if (Array.isArray(obj)) {
@@ -124,6 +133,9 @@ function scopedReactive(obj) {
 }
 
 export function isRef(obj) {
+  if (!obj) {
+    return false;
+  }
   return obj[IS_REF] || false;
 }
 
@@ -132,7 +144,7 @@ export function isProxy(obj) {
 }
 
 export function isReactive(obj) {
-  return REACTIVE_LIST.has(obj);
+  return obj && REACTIVE_LIST.has(obj);
 }
 
 export function isReadonly() {
@@ -164,6 +176,9 @@ class TrackedObjectKeyRef {
   }
   set value(value) {
     unref(this.obj)[this.key] = value;
+  }
+  toString() {
+    return this.value;
   }
 }
 
@@ -264,6 +279,9 @@ class CustomRef {
   }
   set value(value) {
     this.desc.set(value);
+  }
+  toString() {
+    return this.value;
   }
 }
 
