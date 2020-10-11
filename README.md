@@ -11,13 +11,19 @@ Documentation: https://composition-api.vuejs.org/api.html
 `glimmer-composition-api` has following named imports:
 
 * `Component` - component class with `setup` function.
+* `nodeRef('refName')` - function to create DOM refs, 
+
+```hbs
+<!-- in template. -->
+<div {{create-ref "refName"}}> </div>
+```
 
 ... other same stuff
 
 
 Not implemented:
 
-DOM refs, readonly, watchers, `onUpdated` hook
+`readonly`, `watch`, `onUpdated`, `onBeforeUpdate` hooks / functions.
 
 Compatibility
 ------------------------------------------------------------------------------

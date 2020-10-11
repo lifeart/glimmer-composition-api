@@ -4,12 +4,58 @@ import { tracked as trackedAny } from 'tracked-built-ins';
 // import { setComponentManager, capabilities } from '@ember/-internals/glimmer';
 import { registerDestructor } from '@ember/destroyable';
 import { scheduleOnce } from '@ember/runloop';
-
+import { cached } from 'tracked-toolbox';
+import { nodeFor } from 'ember-ref-bucket';
 
 const IS_REF = Symbol("IS_REF");
-
+const EFFECTS = new WeakMap();
 let runtimeContext = null;
 
+export function nodeRef(refName) {
+  return new NodeTrackedRef(runtimeContext, refName);
+}
+
+class NodeTrackedRef {
+  constructor(ctx, name) {
+    this.ctx = ctx;
+    this.name = name;
+  }
+  get value() {
+    return nodeFor(this.ctx, this.name) || null;
+  }
+}
+
+function addEffect(effect) {
+  if (!EFFECTS.has(runtimeContext)) {
+    EFFECTS.set(runtimeContext, []);
+  }
+  EFFECTS.get(runtimeContext).push(effect);
+}
+
+function removeEffect(context, effect) {
+  const effects = EFFECTS.get(context) || [];
+  EFFECTS.set(context, effects.filter((el) => el !== effect));
+}
+
+function updateEffects(ctx) {
+  (EFFECTS.get(ctx) || []).forEach((eff) => {
+    eff.compute();
+  })
+}
+class TrackedEffect {
+  constructor(fn) {
+    this.fn = fn;
+    // @to-do add invalidate function
+    this.compute();
+  }
+  @cached
+  get value() {
+    return this.fn();
+  }
+  compute() {
+    return this.value;
+  }
+}
 
 function setRuntimeContext(ctx) {
   runtimeContext = ctx;
@@ -105,6 +151,9 @@ class TrackedObjectKeyRef {
 }
 
 export function toRef(obj, key) {
+  if (isRef(obj[key])) {
+    return obj[key];
+  }
   return new TrackedObjectKeyRef(obj, key);
 }
 
@@ -140,9 +189,12 @@ export function readonly(obj) {
 
 
 export function watchEffect(fn) {
-  // @to-do implement observable
-  fn();
-  return () => { };
+  let ctx = runtimeContext;
+  const effect = new TrackedEffect(fn);
+  addEffect(effect);
+  return () => {
+    removeEffect(ctx, effect);
+  }
 }
 
 export function watch(cond, cb) {
@@ -174,9 +226,16 @@ export function onUnmounted(fn) {
   registerDestructor(runtimeContext, fn);
 }
 
-export function inject(name) {
-  return this.getOwner(this).container.lookup(`service:${name}`);
+const DI = new WeakMap();
+
+export function provide(obj, value) {
+  DI.set(obj, value);
 }
+
+export function inject(obj, defaultValue) {
+  return DI.get(obj) || defaultValue;
+}
+
 
 class CustomRef {
   [IS_REF] = true;
@@ -201,19 +260,24 @@ export class Component extends GlimmerComponent {
     if (typeof this.setup !== 'function') {
       throw new Error('unable to find setup function on component, imported from "glimmer-composition-api"');
     }
-    setRuntimeContext(this);
-    const props = this.setup(this.args) || {};
-    setRuntimeContext(null);
-    Object.entries(props).forEach(([key, value]) => {
-      Object.defineProperty(this, key, {
-        get() {
-          return unref(value)
-        },
-        set(value) {
-          value.value = value;
-        }
+    try {
+      setRuntimeContext(this);
+      const props = this.setup(this.args) || {};
+      Object.entries(props).forEach(([key, value]) => {
+        Object.defineProperty(this, key, {
+          get() {
+            updateEffects(this);
+            return unref(value)
+          },
+          set(value) {
+            value.value = value;
+          }
+        });
       });
-    });
+    } finally {
+      setRuntimeContext(null);
+    }
+
   }
 }
 
