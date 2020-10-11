@@ -2,8 +2,18 @@ import GlimmerComponent from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { tracked as trackedAny } from 'tracked-built-ins';
 // import { setComponentManager, capabilities } from '@ember/-internals/glimmer';
+import { registerDestructor } from '@ember/destroyable';
+import { scheduleOnce } from '@ember/runloop';
+
 
 const IS_REF = Symbol("IS_REF");
+
+let runtimeContext = null;
+
+
+function setRuntimeContext(ctx) {
+  runtimeContext = ctx;
+}
 
 class TrackedRef {
   [IS_REF] = true;
@@ -132,7 +142,7 @@ export function readonly(obj) {
 export function watchEffect(fn) {
   // @to-do implement observable
   fn();
-  return () => {};
+  return () => { };
 }
 
 export function watch(cond, cb) {
@@ -154,9 +164,15 @@ export function computed(fn) {
   }
 }
 
-export function onMounted() {}
-export function onUpdated() {}
-export function onUnmounted() {}
+export function onMounted(fn) {
+  scheduleOnce('afterRender', fn);
+}
+export function onUpdated() {
+  // @to-do implement
+}
+export function onUnmounted(fn) {
+  registerDestructor(runtimeContext, fn);
+}
 
 export function inject(name) {
   return this.getOwner(this).container.lookup(`service:${name}`);
@@ -182,7 +198,12 @@ class CustomRefWrapper {
 export class Component extends GlimmerComponent {
   constructor() {
     super(...arguments);
+    if (typeof this.setup !== 'function') {
+      throw new Error('unable to find setup function on component, imported from "glimmer-composition-api"');
+    }
+    setRuntimeContext(this);
     const props = this.setup(this.args) || {};
+    setRuntimeContext(null);
     Object.entries(props).forEach(([key, value]) => {
       Object.defineProperty(this, key, {
         get() {
@@ -193,9 +214,6 @@ export class Component extends GlimmerComponent {
         }
       });
     });
-  }
-  setup() {
-
   }
 }
 

@@ -1,7 +1,17 @@
 glimmer-composition-api
 ==============================================================================
 
-[Short description of the addon.]
+This is VUE Composition API implementation fro Glimmer/Ember, based on @tracked properties.
+
+Documentation: https://composition-api.vuejs.org/api.html
+
+
+`glimmer-composition-api` has following named imports:
+
+* `Component` - same API as VUE component
+
+... other same stuff
+
 
 
 Compatibility
@@ -23,7 +33,31 @@ ember install glimmer-composition-api
 Usage
 ------------------------------------------------------------------------------
 
-[Longer description of how to use the addon in apps.]
+```js
+import { Component, ref, onUnmounted } from 'glimmer-composition-api';
+
+export default class HelloWorld extends Component {
+  setup(args) {
+    const name = ref('Hello');
+
+    const timer = setInterval(()=>{
+      name.value = Date.now();
+    }, 100);
+
+    onUnmounted(()=> {
+      clearInterval(timer);
+    });
+
+    return {
+      name
+    }
+  }
+}
+```
+
+```hbs
+<h1>{{this.name}}</h1>
+```
 
 
 Contributing
