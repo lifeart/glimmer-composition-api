@@ -1,11 +1,15 @@
-import { Component, ref, onUnmounted } from 'glimmer-composition-api';
+import { Component, ref, computed, onUnmounted } from 'glimmer-composition-api';
 
 export default class Example extends Component {
-  setup() {
-    const name = ref('Hello');
+  setup(args) {
+    const timestamp = ref(Date.now());
+
+    const name = computed(()=>{
+      return args.name || 'unknown person';
+    });
 
     const timer = setInterval(()=>{
-      name.value = Date.now();
+      timestamp.value = Date.now();
     }, 100);
 
     onUnmounted(()=> {
@@ -13,7 +17,8 @@ export default class Example extends Component {
     });
 
     return {
-      name
+      name,
+      timestamp
     }
   }
 }
