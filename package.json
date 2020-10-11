@@ -26,9 +26,9 @@
     "ember-cli-babel": "^7.22.1",
     "ember-cli-htmlbars": "^5.3.1",
     "ember-destroyable-polyfill": "^2.0.2",
+    "ember-ref-bucket": "^1.2.0",
     "tracked-built-ins": "^1.0.2",
-    "tracked-toolbox": "^1.2.1",
-    "ember-ref-bucket": "^1.1.0"
+    "tracked-toolbox": "^1.2.1"
   },
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",

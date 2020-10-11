@@ -1,4 +1,4 @@
-import { Component, ref, computed, reactive, onUnmounted, watchEffect } from 'glimmer-composition-api';
+import { Component, ref, nodeRef, computed, reactive, onUnmounted, watchEffect } from 'glimmer-composition-api';
 
 export default class Example extends Component {
   setup(args) {
@@ -13,9 +13,11 @@ export default class Example extends Component {
       return args.name || 'unknown person';
     });
 
+    const button = nodeRef('button');
+
     const timer = setInterval(()=>{
       timestamp.value = Date.now();
-      scope.items[0].order++;
+      scope.items.forEach((el)=>el.order++);
     }, 100);
 
     let counter = 0;
@@ -35,7 +37,11 @@ export default class Example extends Component {
     return {
       scope,
       name,
-      timestamp
+      timestamp,
+      onButtonClick: () => {
+        button.value.textContent = 'Clicked!';
+        scope.items.push(reactive({order: 42}));
+      }
     }
   }
 }

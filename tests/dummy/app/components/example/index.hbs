@@ -3,3 +3,5 @@
 {{#each this.scope.items as |item|}}
   {{item.order}}
 {{/each}}
+
+<button type="button" {{on 'click' this.onButtonClick}} {{create-ref "button"}}>Click Me!</button>
