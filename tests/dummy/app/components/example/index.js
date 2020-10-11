@@ -1,4 +1,25 @@
-import { Component, ref, nodeRef, computed, reactive, onUnmounted, watchEffect } from 'glimmer-composition-api';
+import { Component, ref, nodeRef, computed, reactive, onMounted, onUnmounted, watchEffect } from 'glimmer-composition-api';
+
+
+function useMousePosition() {
+  const x = ref(0);
+  const y = ref(0);
+
+  function update(e) {
+    x.value = e.pageX;
+    y.value = e.pageY;
+  }
+
+  onMounted(() => {
+    window.addEventListener("mousemove", update);
+  });
+
+  onUnmounted(() => {
+    window.removeEventListener("mousemove", update);
+  });
+
+  return { x, y };
+}
 
 export default class Example extends Component {
   setup(args) {
@@ -8,6 +29,8 @@ export default class Example extends Component {
         { order: 5 }
       ]
     });
+
+    const { x, y } = useMousePosition();
 
     const name = computed(()=>{
       return args.name || 'unknown person';
@@ -46,7 +69,8 @@ export default class Example extends Component {
       onButtonClick: () => {
         button.value.textContent = 'Clicked!';
         scope.items.push(reactive({order: 42}));
-      }
+      },
+      x, y
     }
   }
 }
