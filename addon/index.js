@@ -207,7 +207,7 @@ export class Component extends GlimmerComponent {
     Object.entries(props).forEach(([key, value]) => {
       Object.defineProperty(this, key, {
         get() {
-          return unref(value.value)
+          return unref(value)
         },
         set(value) {
           value.value = value;
