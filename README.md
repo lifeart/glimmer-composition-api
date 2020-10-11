@@ -3,16 +3,21 @@ glimmer-composition-api
 
 This is VUE Composition API implementation fro Glimmer/Ember, based on @tracked properties.
 
+* repository created as demo, to show flexibility of ember.js tracking system, not recommended for use in production.
+
 Documentation: https://composition-api.vuejs.org/api.html
 
 
 `glimmer-composition-api` has following named imports:
 
-* `Component` - same API as VUE component
+* `Component` - component class with `setup` function.
 
 ... other same stuff
 
 
+Not implemented:
+
+DOM refs, readonly, watchers, `onUpdated` hook
 
 Compatibility
 ------------------------------------------------------------------------------
