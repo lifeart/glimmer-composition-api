@@ -30,10 +30,16 @@ export default class Example extends Component {
       ]
     });
 
+    const nick = ref('lifeart');
+
     const { x, y } = useMousePosition();
 
     const name = computed(()=>{
       return args.name || 'unknown person';
+    });
+
+    const nickLength = computed(()=>{
+      return nick.value.length;
     });
 
     const page = reactive({
@@ -66,6 +72,8 @@ export default class Example extends Component {
       name,
       page,
       timestamp,
+      nick,
+      nickLength,
       onButtonClick: () => {
         button.value.textContent = 'Clicked!';
         scope.items.push(reactive({order: 42}));

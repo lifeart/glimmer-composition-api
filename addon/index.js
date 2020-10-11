@@ -298,14 +298,14 @@ export class Component extends GlimmerComponent {
     try {
       setRuntimeContext(this);
       const props = this.setup(this.args) || {};
-      Object.entries(props).forEach(([key, value]) => {
+      Object.entries(props).forEach(([key, refValue]) => {
         Object.defineProperty(this, key, {
           get() {
             updateEffects(this);
-            return unref(value)
+            return unref(refValue)
           },
           set(value) {
-            value.value = value;
+            refValue.value = value;
           }
         });
       });
