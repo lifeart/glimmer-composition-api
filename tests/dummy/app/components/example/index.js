@@ -1,8 +1,13 @@
-import { Component, ref, computed, onUnmounted, watchEffect } from 'glimmer-composition-api';
+import { Component, ref, computed, reactive, onUnmounted, watchEffect } from 'glimmer-composition-api';
 
 export default class Example extends Component {
   setup(args) {
     const timestamp = ref(Date.now());
+    const scope = reactive({
+      items: [
+        { order: 5 }
+      ]
+    });
 
     const name = computed(()=>{
       return args.name || 'unknown person';
@@ -10,6 +15,7 @@ export default class Example extends Component {
 
     const timer = setInterval(()=>{
       timestamp.value = Date.now();
+      scope.items[0].order++;
     }, 100);
 
     let counter = 0;
@@ -27,6 +33,7 @@ export default class Example extends Component {
     });
 
     return {
+      scope,
       name,
       timestamp
     }

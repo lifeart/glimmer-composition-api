@@ -1,1 +1,5 @@
 <h1>Hello, {{this.name}}! Current timestamp is: {{this.timestamp}}</h1>
+
+{{#each this.scope.items as |item|}}
+  {{item.order}}
+{{/each}}

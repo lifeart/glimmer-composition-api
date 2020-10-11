@@ -79,8 +79,7 @@ export function markRaw(obj) {
 }
 
 export function shallowReactive(obj) {
-  // @to-do cleanup diffs
-  return reactive(obj);
+  return scopedReactive(obj);
 }
 
 export function shallowRef(obj) {
@@ -93,6 +92,24 @@ export function toRaw(obj) {
 }
 
 export function reactive(obj) {
+  if (obj === null) {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return scopedReactive(obj.map(el=> reactive(el)));
+  } else if (typeof obj === 'object' && obj !== null) {
+    let clone = {...obj};
+    Object.entries(obj).forEach(([key, value])=>{
+      if (typeof value === 'object' && value !== null || Array.isArray(value)) {
+        clone[key] = reactive(value);
+      }
+    });
+    return scopedReactive(clone);
+  }
+  return scopedReactive(obj);
+}
+
+function scopedReactive(obj) {
   if (RAW_OBJECTS.has(obj)) {
     return obj;
   }
