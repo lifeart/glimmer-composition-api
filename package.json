@@ -1,6 +1,6 @@
 {
   "name": "glimmer-composition-api",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Vue Composition API implementation for Glimmer/Ember",
   "keywords": [
     "ember-addon"
